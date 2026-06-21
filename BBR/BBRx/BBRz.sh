@@ -68,7 +68,14 @@ if [ ! -f /usr/src/linux-headers-$(uname -r)/.config ]; then
 fi
 
 #bbrz
-wget https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz.c
+bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz.c"
+if [ -r /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$ID" = "debian" ] && [ "${VERSION_ID%%.*}" = "13" ]; then
+        bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz_debian13.c"
+    fi
+fi
+wget -O $HOME/tcp_bbrz.c "$bbrz_source_url"
 if [ ! -f $HOME/tcp_bbrz.c ]; then
 	echo "Error: Download failed! Exiting." >&2
 	exit 1
@@ -153,4 +160,3 @@ systemctl disable bbrinstall.service > /dev/null 2>&1
 rm /etc/systemd/system/bbrinstall.service > /dev/null 2>&1
 rm /root/BBRz.sh > /dev/null 2>&1
 shutdown -r +1
-

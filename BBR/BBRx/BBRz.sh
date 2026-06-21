@@ -68,13 +68,24 @@ if [ ! -f /usr/src/linux-headers-$(uname -r)/.config ]; then
 fi
 
 #bbrz
-bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz.c"
-if [ -r /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$ID" = "debian" ] && [ "${VERSION_ID%%.*}" = "13" ]; then
-        bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz_debian13.c"
-    fi
+if [ ! -r /etc/os-release ]; then
+    echo "Error: Unsupported OS, /etc/os-release not found" >&2
+    exit 1
 fi
+
+. /etc/os-release
+case "$ID:${VERSION_ID%%.*}" in
+    debian:12)
+        bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz.c"
+        ;;
+    debian:13)
+        bbrz_source_url="https://raw.githubusercontent.com/guowanghushifu/Seedbox-Components/main/BBR/BBRx/tcp_bbrz_debian13.c"
+        ;;
+    *)
+        echo "Error: Unsupported OS, only Debian 12 and Debian 13 are supported" >&2
+        exit 1
+        ;;
+esac
 wget -O $HOME/tcp_bbrz.c "$bbrz_source_url"
 if [ ! -f $HOME/tcp_bbrz.c ]; then
 	echo "Error: Download failed! Exiting." >&2
